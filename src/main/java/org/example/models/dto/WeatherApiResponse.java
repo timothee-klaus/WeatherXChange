@@ -27,6 +27,16 @@ public class WeatherApiResponse {
      */
     private WindData wind;
 
+    /**
+     * Visibilité en mètres
+     */
+    private int visibility;
+
+    /**
+     * Données système (pays, lever/coucher du soleil)
+     */
+    private SysData sys;
+
     // Getters
 
     /**
@@ -63,6 +73,14 @@ public class WeatherApiResponse {
      */
     public WindData getWind() {
         return wind;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public SysData getSys() {
+        return sys;
     }
 
     // Setters
@@ -103,6 +121,14 @@ public class WeatherApiResponse {
         this.wind = wind;
     }
 
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public void setSys(SysData sys) {
+        this.sys = sys;
+    }
+
     /**
      * Classe interne pour les données principales
      */
@@ -116,6 +142,16 @@ public class WeatherApiResponse {
          * Humidité en pourcentage (correspond à "humidity" dans le JSON)
          */
         private double humidity;
+
+        /**
+         * Température ressentie en Celsius
+         */
+        private double feels_like;
+
+        /**
+         * Pression atmosphérique en hPa
+         */
+        private int pressure;
 
         /**
          * Retourne la température
@@ -136,6 +172,22 @@ public class WeatherApiResponse {
         }
 
         /**
+         * Retourne la température ressentie
+         * @return la température ressentie en Celsius
+         */
+        public double getFeelsLike() {
+            return feels_like;
+        }
+
+        /**
+         * Retourne la pression atmosphérique
+         * @return la pression en hPa
+         */
+        public int getPressure() {
+            return pressure;
+        }
+
+        /**
          * Définit la température
          *
          * @param temp la température en Celsius
@@ -152,6 +204,14 @@ public class WeatherApiResponse {
         public void setHumidity(double humidity) {
             this.humidity = humidity;
         }
+
+        public void setFeels_like(double feels_like) {
+            this.feels_like = feels_like;
+        }
+
+        public void setPressure(int pressure) {
+            this.pressure = pressure;
+        }
     }
 
     /**
@@ -162,6 +222,12 @@ public class WeatherApiResponse {
          * Description de la météo (correspond à "description" dans le JSON)
          */
         private String description;
+
+        /**
+         * Code de l'icône météo (ex: "01d", "02n")
+         * Permet de construire l'URL de l'image via OpenWeatherMap
+         */
+        private String icon;
 
         /**
          * Retourne la description météo
@@ -179,6 +245,22 @@ public class WeatherApiResponse {
          */
         public void setDescription(String description) {
             this.description = description;
+        }
+
+        /**
+         * Retourne le code de l'icône
+         * @return le code (ex: "01d")
+         */
+        public String getIcon() {
+            return icon;
+        }
+
+        /**
+         * Définit le code de l'icône
+         * @param icon le code de l'icône
+         */
+        public void setIcon(String icon) {
+            this.icon = icon;
         }
     }
 
@@ -207,6 +289,24 @@ public class WeatherApiResponse {
          */
         public void setSpeed(double speed) {
             this.speed = speed;
+        }
+    }
+
+    /**
+     * Classe interne pour les données système (pays, etc.)
+     */
+    public static class SysData {
+        /**
+         * Code pays (ex: "FR", "BJ")
+         */
+        private String country;
+
+        public String getCountry() {
+            return country;
+        }
+
+        public void setCountry(String country) {
+            this.country = country;
         }
     }
 }

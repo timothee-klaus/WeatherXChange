@@ -13,9 +13,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class ApiService {
     /**
-     * Clé API pour accéder aux services externes
+     * Clés API pour accéder aux services externes
      */
-    protected String apiKey = "536b0c985ef3e28423d2b46f80a95da9";
+    protected String weatherApiKey = "536b0c985ef3e28423d2b46f80a95da9";
+    protected String CurrencyApiKey = "4846125ffe5ceb185818b45a";
 
     /**
      * Client HTTP Jersey pour les requêtes API

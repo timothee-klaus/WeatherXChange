@@ -1,212 +1,189 @@
 package org.example.views;
-
+import org.example.models.CurrencyData;
+import org.example.ui.Icons;
+import org.example.ui.Theme;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import org.example.models.CurrencyData;
-import org.example.ui.MainFrame;
 import java.awt.*;
 import java.awt.event.ActionListener;
-
-/**
- * Panel de conversion de devises avec un design moderne.
- */
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 public class CurrencyPanel extends JPanel {
-    private JComboBox<String> baseCurrencyCombo, targetCurrencyCombo;
-    private JTextField amountField, resultField;
+    private JComboBox<String> baseCurrencyCombo;
+    private JComboBox<String> targetCurrencyCombo;
+    private JTextField amountField;
+    private JLabel resultLabel;
+    private JLabel rateInfoLabel;
     private JButton convertButton;
     private CurrencyData currentData;
     private ActionListener currentListener;
-
     public CurrencyPanel() {
         setLayout(new BorderLayout(0, 20));
-        setBackground(MainFrame.BACKGROUND_COLOR);
-        setBorder(new EmptyBorder(25, 30, 25, 30));
-
-        // Titre
-        JLabel titleLabel = new JLabel("💱 Conversion de devises");
-        titleLabel.setFont(MainFrame.HEADER_FONT);
-        titleLabel.setForeground(MainFrame.TEXT_COLOR);
-        add(titleLabel, BorderLayout.NORTH);
-
-        // Card de conversion
-        add(createConversionCard(), BorderLayout.CENTER);
+        setBackground(Theme.BACKGROUND);
+        setBorder(new EmptyBorder(20, 25, 20, 25));
+        add(createTitle(), BorderLayout.NORTH);
+        add(createMainCard(), BorderLayout.CENTER);
     }
-
-    /**
-     * Crée la carte de conversion
-     */
-    private JPanel createConversionCard() {
-        JPanel card = MainFrame.createCard();
-        card.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Devise de base
-        gbc.gridx = 0; gbc.gridy = 0;
-        card.add(MainFrame.createStyledLabel("💵 Devise de base:"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 1.0;
-        baseCurrencyCombo = createStyledComboBox();
-        card.add(baseCurrencyCombo, gbc);
-
-        // Montant
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
-        card.add(MainFrame.createStyledLabel("💰 Montant:"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 1.0;
-        amountField = MainFrame.createStyledTextField();
-        card.add(amountField, gbc);
-
-        // Devise cible
-        gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0;
-        card.add(MainFrame.createStyledLabel("🎯 Devise cible:"), gbc);
-
-        gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 1.0;
-        targetCurrencyCombo = createStyledComboBox();
-        card.add(targetCurrencyCombo, gbc);
-
-        // Bouton convertir
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        gbc.insets = new Insets(20, 10, 10, 10);
-        convertButton = MainFrame.createStyledButton("🔄 Convertir", MainFrame.SECONDARY_COLOR);
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setOpaque(false);
-        buttonPanel.add(convertButton);
-        card.add(buttonPanel, gbc);
-
-        // Résultat
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        JPanel resultPanel = createResultPanel();
-        card.add(resultPanel, gbc);
-
+    private JLabel createTitle() {
+        JLabel title = new JLabel(Icons.EXCHANGE + " Conversion de devises");
+        title.setFont(Theme.HEADER);
+        title.setForeground(Theme.TEXT_DARK);
+        return title;
+    }
+    private JPanel createMainCard() {
+        JPanel card = Theme.createCard();
+        card.setLayout(new BorderLayout(0, 25));
+        card.add(createConversionSection(), BorderLayout.CENTER);
+        card.add(createResultSection(), BorderLayout.SOUTH);
         return card;
     }
-
-    /**
-     * Crée le panel de résultat
-     */
-    private JPanel createResultPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 0));
-        panel.setBackground(new Color(232, 245, 233));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(MainFrame.SECONDARY_COLOR, 2),
-            BorderFactory.createEmptyBorder(15, 20, 15, 20)
-        ));
-
-        JLabel resultLabel = new JLabel("✅ Résultat:");
-        resultLabel.setFont(MainFrame.LABEL_FONT);
-        resultLabel.setForeground(MainFrame.SECONDARY_COLOR);
-
-        resultField = new JTextField();
-        resultField.setEditable(false);
-        resultField.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        resultField.setForeground(MainFrame.SECONDARY_COLOR);
-        resultField.setBackground(new Color(232, 245, 233));
-        resultField.setBorder(null);
-        resultField.setHorizontalAlignment(JTextField.CENTER);
-        resultField.setText("0.00");
-
-        panel.add(resultLabel, BorderLayout.WEST);
-        panel.add(resultField, BorderLayout.CENTER);
-
-        return panel;
+    private JPanel createConversionSection() {
+        JPanel section = new JPanel(new GridLayout(1, 3, 15, 0));
+        section.setOpaque(false);
+        section.add(createInputCard("De", baseCurrencyCombo = createCurrencyCombo()));
+        section.add(createAmountCard());
+        section.add(createInputCard("Vers", targetCurrencyCombo = createCurrencyCombo()));
+        return section;
     }
-
-    /**
-     * Crée un ComboBox stylisé
-     */
-    private JComboBox<String> createStyledComboBox() {
+    private JPanel createInputCard(String label, JComboBox<String> combo) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Theme.BORDER, 1),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        JLabel titleLabel = new JLabel(label);
+        titleLabel.setFont(Theme.BODY);
+        titleLabel.setForeground(Theme.TEXT_LIGHT);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        combo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        combo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        card.add(titleLabel);
+        card.add(Box.createVerticalStrut(10));
+        card.add(combo);
+        return card;
+    }
+    private JPanel createAmountCard() {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Theme.BORDER, 1),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        JLabel titleLabel = new JLabel("Montant");
+        titleLabel.setFont(Theme.BODY);
+        titleLabel.setForeground(Theme.TEXT_LIGHT);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        amountField = new JTextField();
+        amountField.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        amountField.setForeground(Theme.TEXT_DARK);
+        amountField.setBackground(Color.WHITE);
+        amountField.setCaretColor(Theme.TEXT_DARK);
+        amountField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        amountField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        amountField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Theme.BORDER, 1),
+            new EmptyBorder(8, 10, 8, 10)
+        ));
+        card.add(titleLabel);
+        card.add(Box.createVerticalStrut(10));
+        card.add(amountField);
+        return card;
+    }
+    private JPanel createResultSection() {
+        JPanel section = new JPanel(new BorderLayout(0, 15));
+        section.setOpaque(false);
+        convertButton = Theme.createButton(Icons.REFRESH + " Convertir", Theme.SECONDARY);
+        JPanel buttonWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonWrapper.setOpaque(false);
+        buttonWrapper.add(convertButton);
+        JPanel resultCard = new JPanel();
+        resultCard.setLayout(new BoxLayout(resultCard, BoxLayout.Y_AXIS));
+        resultCard.setBackground(Theme.SUCCESS_BG);
+        resultCard.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Theme.SECONDARY, 2),
+            new EmptyBorder(20, 25, 20, 25)
+        ));
+        resultLabel = new JLabel("0.00");
+        resultLabel.setFont(new Font("Segoe UI", Font.BOLD, 42));
+        resultLabel.setForeground(Theme.SECONDARY);
+        resultLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rateInfoLabel = new JLabel("Entrez un montant pour convertir");
+        rateInfoLabel.setFont(Theme.BODY);
+        rateInfoLabel.setForeground(Theme.TEXT_LIGHT);
+        rateInfoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        resultCard.add(resultLabel);
+        resultCard.add(Box.createVerticalStrut(8));
+        resultCard.add(rateInfoLabel);
+        section.add(buttonWrapper, BorderLayout.NORTH);
+        section.add(resultCard, BorderLayout.CENTER);
+        return section;
+    }
+    private JComboBox<String> createCurrencyCombo() {
         JComboBox<String> combo = new JComboBox<>();
-        combo.setFont(MainFrame.VALUE_FONT);
+        combo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         combo.setBackground(Color.WHITE);
-        combo.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199), 1));
+        combo.setForeground(Theme.TEXT_DARK);
+        combo.setBorder(BorderFactory.createLineBorder(Theme.BORDER, 1));
         return combo;
     }
-
-    /**
-     * Met à jour les devises disponibles
-     */
     public void updateCurrencies(CurrencyData data) {
         SwingUtilities.invokeLater(() -> {
             currentData = data;
+            List<String> currencies = new ArrayList<>(data.getRates().keySet());
+            Collections.sort(currencies);
             baseCurrencyCombo.removeAllItems();
             targetCurrencyCombo.removeAllItems();
-
-            // Trier les devises par ordre alphabétique
-            java.util.List<String> currencies = new java.util.ArrayList<>(data.getRates().keySet());
-            java.util.Collections.sort(currencies);
-
             for (String currency : currencies) {
                 baseCurrencyCombo.addItem(currency);
                 targetCurrencyCombo.addItem(currency);
             }
-
-            // Sélectionner EUR et USD par défaut
             baseCurrencyCombo.setSelectedItem("EUR");
-            targetCurrencyCombo.setSelectedItem("USD");
+            targetCurrencyCombo.setSelectedItem("XOF");
         });
     }
-
-    /**
-     * Définit le listener pour le bouton de conversion.
-     * Supprime l'ancien listener avant d'ajouter le nouveau pour éviter les doublons.
-     */
     public void setConvertListener(ActionListener listener) {
-        // Supprimer l'ancien listener s'il existe
         if (currentListener != null) {
             convertButton.removeActionListener(currentListener);
             amountField.removeActionListener(currentListener);
         }
-
-        // Ajouter le nouveau listener
         currentListener = listener;
         convertButton.addActionListener(currentListener);
         amountField.addActionListener(currentListener);
     }
-
-    /**
-     * Effectue la conversion
-     */
     public double convert() {
+        if (currentData == null) return 0;
         try {
-            if (currentData == null) {
-                return 0;
-            }
-
             double amount = Double.parseDouble(amountField.getText().replace(",", "."));
             String base = (String) baseCurrencyCombo.getSelectedItem();
             String target = (String) targetCurrencyCombo.getSelectedItem();
-
-            if (base == null || target == null) {
-                return 0;
-            }
-
+            if (base == null || target == null) return 0;
             Double baseRate = currentData.getRate(base);
             Double targetRate = currentData.getRate(target);
-
-            if (baseRate == null || targetRate == null) {
-                return 0;
-            }
-
-            // Conversion: montant / taux_base * taux_cible
+            if (baseRate == null || targetRate == null) return 0;
             return (amount / baseRate) * targetRate;
         } catch (NumberFormatException e) {
             return 0;
         }
     }
-
-    /**
-     * Affiche le résultat de la conversion
-     */
     public void displayResult(double result) {
+        String base = (String) baseCurrencyCombo.getSelectedItem();
         String target = (String) targetCurrencyCombo.getSelectedItem();
-        if (target != null) {
-            resultField.setText(String.format("%.2f %s", result, target));
+        if (target != null && base != null) {
+            resultLabel.setText(String.format("%.2f %s", result, target));
+            try {
+                double amount = Double.parseDouble(amountField.getText().replace(",", "."));
+                double rate = result / amount;
+                rateInfoLabel.setText(String.format("1 %s = %.4f %s", base, rate, target));
+            } catch (NumberFormatException e) {
+                rateInfoLabel.setText("Taux de conversion");
+            }
         } else {
-            resultField.setText("0.00");
+            resultLabel.setText("0.00");
+            rateInfoLabel.setText("Entrez un montant pour convertir");
         }
     }
 }
-

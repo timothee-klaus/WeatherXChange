@@ -1,56 +1,52 @@
 package org.example.models.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
- * DTO pour mapper la réponse JSON de l'API ExchangeRate.
- * Jackson utilise les noms de champs qui correspondent aux clés JSON.
+ * DTO pour mapper la réponse JSON de l'API ExchangeRate v6.
+ * Utilise les noms de propriétés JSON correspondant à la nouvelle API.
  */
 public class CurrencyApiResponse {
-    /**
-     * Devise de base (correspond à "base" dans le JSON)
-     */
-    private String base;
 
     /**
-     * Carte des taux de change (correspond à "rates" dans le JSON)
+     * Code de la devise de base (correspond à "base_code" dans le JSON)
      */
-    private Map<String, Double> rates;
+    @JsonProperty("base_code")
+    private String baseCode;
 
     /**
-     * Retourne la devise de base
-     *
-     * @return la devise de base (ex: "EUR", "USD")
+     * Carte des taux de conversion (correspond à "conversion_rates" dans le JSON)
      */
-    public String getBase() {
-        return base;
+    @JsonProperty("conversion_rates")
+    private Map<String, Double> conversionRates;
+
+    /**
+     * Retourne le code de la devise de base
+     */
+    public String getBaseCode() {
+        return baseCode;
     }
 
     /**
-     * Retourne les taux de change
-     *
-     * @return une carte avec les devises et leurs taux
+     * Retourne les taux de conversion
      */
-    public Map<String, Double> getRates() {
-        return rates;
+    public Map<String, Double> getConversionRates() {
+        return conversionRates;
     }
 
     /**
-     * Définit la devise de base
-     *
-     * @param base la devise de base
+     * Définit le code de la devise de base
      */
-    public void setBase(String base) {
-        this.base = base;
+    public void setBaseCode(String baseCode) {
+        this.baseCode = baseCode;
     }
 
     /**
-     * Définit les taux de change
-     *
-     * @param rates la carte des taux
+     * Définit les taux de conversion
      */
-    public void setRates(Map<String, Double> rates) {
-        this.rates = rates;
+    public void setConversionRates(Map<String, Double> conversionRates) {
+        this.conversionRates = conversionRates;
     }
 }
 
